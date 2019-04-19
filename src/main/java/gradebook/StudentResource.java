@@ -22,30 +22,7 @@ public class StudentResource {
 	@RequestMapping(path = "/student/{name}/grade/{grade}", method = RequestMethod.POST)
 	public void createStudent(@PathVariable String name, @PathVariable String grade)
 	{
-		
-		if (checker.checkInput(grade)==false) throw new InvalidGradeException("grade-" + grade);
-		
-		Optional<Student> studentOpt = studentRepository.findByNameIgnoreCase(name);
-		
-		if (!studentOpt.isPresent()) 
-		{
-			Student student = new Student();
-			student.setGrade(grade);
-			student.setName(name);
-			studentRepository.save(student);
-			
-			System.out.println("Created Student " + student.getName());
-		}
-		else
-		{
-			Student tempStudent = studentOpt.get();
-			Student student = new Student();
-			student.id = tempStudent.id;
-			student.setGrade(grade);
-			student.setName(name);
-			studentRepository.save(student);
-			System.out.println(name + " changed");
-		}
+		createUpdateOp(name, grade);		
 	}
 	
 	@RequestMapping(path = "/student/{name}", method = RequestMethod.GET,
@@ -72,6 +49,20 @@ public class StudentResource {
 	@RequestMapping(path = "/student/{name}/grade/{grade}", method = RequestMethod.PUT)
 	public void updateCustomer(@PathVariable String name, @PathVariable String grade)
 	{
+		createUpdateOp(name, grade);
+	}
+	
+	
+	@RequestMapping(path = "/student", method = RequestMethod.GET,
+			produces={"text/xml;charset=utf-8"})
+	public StudentListWrapper getAllStudents()
+	{
+		List<Student> temp = studentRepository.findAll();
+		return new StudentListWrapper(temp);
+	}
+	
+	public void createUpdateOp(String name, String grade)
+	{
 		if (checker.checkInput(grade)==false) throw new InvalidGradeException("grade-" + grade);
 		
 		Optional<Student> studentOpt = studentRepository.findByNameIgnoreCase(name);
@@ -95,16 +86,6 @@ public class StudentResource {
 			studentRepository.save(student);
 			System.out.println(name + " changed");
 		}
-		
-	}
-	
-	
-	@RequestMapping(path = "/student", method = RequestMethod.GET,
-			produces={"text/xml;charset=utf-8"})
-	public StudentListWrapper getAllStudents()
-	{
-		List<Student> temp = studentRepository.findAll();
-		return new StudentListWrapper(temp);
 	}
 
 }
